@@ -5,6 +5,11 @@
 
 import math
 import numpy as np
+import pandas as pd
+
+import sys
+import random
+
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -15,6 +20,10 @@ from labellines import labelLine, labelLines
 import scienceplots
 import functools
 import seaborn as sns
+
+import scipy
+from scipy.optimize import curve_fit
+
 import warnings
 warnings.simplefilter('ignore', RuntimeWarning)
 plt.style.use(["science", "notebook", "grid"])
@@ -169,7 +178,6 @@ def heterozygous_dimer(sA, sB, dA, dB, dAA, dAB, dBB, curr_stab_A, curr_stab_B, 
 
     # Return the concentrations we need
     return cA, cB, cAA, cBB, cAB
-
 
 # ### **Fitness function**
 
@@ -581,7 +589,6 @@ plt.subplots_adjust(hspace=0.29)
 plt.savefig("../Figures/Main_figures/Figure2.pdf", transparent=False, dpi=300, bbox_inches='tight')
 plt.show()
 
-
 # ## **Figure 3 (homodimerization effect)**
 
 # #### **Calculating relative activity, fitness, h for monomers and dimers**
@@ -894,23 +901,7 @@ plt.subplots_adjust(hspace=0.3, wspace=0.2)
 plt.savefig("../Figures/Main_figures/Figure4.pdf", transparent=False, dpi=300, bbox_inches='tight')
 plt.show()
 
-
 # #### Figure 5
-
-# Load libraries
-import numpy as np
-import pandas as pd
-import sys
-import math
-import random
-
-import scipy, matplotlib
-import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
-import warnings
-
-import seaborn as sns
-import matplotlib.gridspec as gridspec
 
 ## Generate a dataset with random samples of s and h_d
 
@@ -1074,7 +1065,7 @@ df_all_vals
 
 ## Initialize layout
 fig, axs = plt.subplots(2, 3)
-fig.set_figwidth(25)
+fig.set_figwidth(29)
 fig.set_figheight(12.5)
 
 fig.subplots_adjust(right = 1.5, top = 1.5)
@@ -1082,14 +1073,6 @@ fig.subplots_adjust(right = 1.5, top = 1.5)
 ax_title_size = 22
 ax_tick_size = 18
 panel_label_size = 30
-
-# Add labels A-F
-axs[0, 0].set_title('(a)', loc="left", fontsize=panel_label_size, fontweight='bold')
-axs[0, 1].set_title('(b)', loc="left", fontsize=panel_label_size, fontweight='bold')
-axs[0, 2].set_title('(c)', loc="left", fontsize=panel_label_size, fontweight='bold')
-axs[1, 0].set_title('(d)', loc="left", fontsize=panel_label_size, fontweight='bold')
-axs[1, 1].set_title('(e)', loc="left", fontsize=panel_label_size, fontweight='bold')
-axs[1, 2].set_title('(f)', loc="left", fontsize=panel_label_size, fontweight='bold')
 
 plt.rcParams['axes.titlepad'] = -20
 
@@ -1105,6 +1088,8 @@ axs[0, 0].set_xticklabels(axs[0,0].get_xticks(), size=ax_tick_size, weight='bold
 
 axs[0, 0].axhline(y=0,xmin=-1,xmax=1,linewidth=3,zorder=0)
 axs[0, 0].axvline(x=0,ymin=-1,ymax=1,linewidth=3,zorder=0)
+axs[0, 0].annotate(f"(a)", xy=(-0.19, 0.98),
+                    xycoords="axes fraction", fontsize=30, fontweight='bold')
 
 #### Panel B #### 
 
@@ -1120,6 +1105,8 @@ axs[0, 1].set_yticklabels(axs[0,1].get_yticks(), size=ax_tick_size, weight='bold
 axs[0, 1].set_xticklabels(axs[0,1].get_xticks(), size=ax_tick_size, weight='bold')
 
 axs[0, 1].legend(['Fitness function 1', 'Fitness function 2', 'Fitness function 3'], fontsize = ax_tick_size)
+axs[0, 1].annotate(f"(b)", xy=(-0.19, 0.98),
+                    xycoords="axes fraction", fontsize=30, fontweight='bold')
 
 #### Panel C ####
 
@@ -1145,8 +1132,12 @@ axs[0, 2].set_ylabel('Value', fontsize = ax_title_size)
 axs[0, 2].set_yticklabels(axs[0,2].get_yticks(), size=ax_tick_size, weight='bold')
 axs[0, 2].set_xticklabels(['$\mathdefault{h_d}$', 'g\n(function 1)', 'g\n(function 2)', 'g\n(function 3)'],
                           size=ax_tick_size, weight='bold')
+axs[0, 2].annotate(f"(c)", xy=(-0.19, 0.98),
+                    xycoords="axes fraction", fontsize=30, fontweight='bold')
 
 #### Panels D-F ####
+
+panel_labels = ['(d)', '(e)', '(f)']
 
 for i in range(len(list_hill)):
     
@@ -1163,12 +1154,12 @@ for i in range(len(list_hill)):
     axs[1, i].set_ylabel('g', fontsize = ax_title_size)
     axs[1, i].set_yticklabels(axs[1, i].get_yticks(), size=ax_tick_size, weight='bold')
     axs[1, i].set_xticklabels(axs[1, i].get_xticks(), size=ax_tick_size, weight='bold')
+    axs[1, i].annotate(f"{panel_labels[i]}", xy=(-0.19, 0.98),
+                    xycoords="axes fraction", fontsize=30, fontweight='bold')
 
 
 fig.tight_layout()
 fig.savefig('../Figures/Main_figures/Figure5.pdf', dpi = 300)
-
-
 
 # ## **Figure S1 (plotting heatmaps as a function of $(\Delta G_{bind,HET−HM},g)$, keeping $r$ fixed)**
 
@@ -1368,7 +1359,6 @@ plt.tight_layout()
 plt.savefig("../Figures/Supp_figures/FigureS1.pdf", transparent=False, dpi=300, bbox_inches='tight')
 plt.show()
 
-
 # ## **Figure S2 (plotting heatmaps as a function of $(\Delta G_{bind,HET−HM},r)$, keeping $g$ fixed)**
 
 # #### **Heterozygous system**
@@ -1468,7 +1458,7 @@ for i in range(5):
         elif j == 1:
             data, cmap, vmin, vmax, label = fitness_c1[i], cmap2, 0, 1, "Fitness ($\\mathrm{\\omega}$)"
         else:
-            data, cmap, vmin, vmax, label = h_c1[i], cmap3, -0.08, 0.1, "$\\mathrm{h_d}$"
+            data, cmap, vmin, vmax, label = h_c1[i], cmap3, 0, 2, "$\\mathrm{h_d}$"
 
         if i == 0:
             cbar_kws = {'location': 'top'}
@@ -1498,14 +1488,21 @@ for i in range(5):
         ax.set_xticks(xticks, xticklabels, fontsize=22, fontweight='bold')
         ax.set_yticks(yticks, yticklabels, fontsize=22, fontweight='bold')
 
-        ax.axvline(x=len(curr_binding_energy_AB_vals)/2, color='white' if j==0 else 'black', linestyle='--', linewidth=1, label='$\Delta G_{(HET - HM)}$=0')
-        ax.axhline(y=len(r_vals)/2, color='white' if j==0 else 'black', linestyle='--', linewidth=1, label='r=0')
+        ax.axvline(x=len(curr_binding_energy_AB_vals)/2, 
+                   color='white' if (j in [0,2]) else 'black', 
+                   linestyle='--', linewidth=1, label='$\Delta G_{(HET - HM)}$=0')
+        
+        ax.axhline(y=len(r_vals)/2, 
+                   color='white' if (j in [0,2]) else 'black',
+                   linestyle='--', linewidth=1, label='r=0')
 
         ax.text(len(curr_binding_energy_AB_vals)/2 - 10, len(r_vals) - 15,
                 '$\mathbf{\Delta G_{HET} = \Delta G_{HM}}$',
-                color='white' if (j==0 and i < 4) else 'black', ha='center', fontsize=24, fontweight='bold', rotation=90)
+                color='white' if ((j==0 and i < 4) or (j==2)) else 'black',
+                ha='center', fontsize=24, fontweight='bold', rotation=90)
         ax.text(30, len(r_vals)/2 - 4, 'r = 0', 
-                color='white' if j==0 else 'black', ha='center', fontsize=24, fontweight='bold')
+                color='white' if (j in [0,2]) else 'black',
+                ha='center', fontsize=24, fontweight='bold')
 
         ax.set_xlabel("$\mathrm{\Delta G_{(HET - HM)}}$", fontsize=29)
         ax.set_ylabel("r", fontsize=29)
