@@ -179,6 +179,7 @@ def heterozygous_dimer(sA, sB, dA, dB, dAA, dAB, dBB, curr_stab_A, curr_stab_B, 
     # Return the concentrations we need
     return cA, cB, cAA, cBB, cAB
 
+
 # ### **Fitness function**
 
 def fitness_1(activity, alpha=1, beta=0.5):
@@ -585,9 +586,10 @@ fig.text(0.4,0.34,'Heterozygous dimer', fontsize=30, fontweight='bold')
 
 plt.tight_layout(rect=[0, 0, 1, 0.95])
 plt.subplots_adjust(hspace=0.29)
-# plt.savefig("../Figures/Main_figures/Figure2.png", transparent=False, dpi=300, bbox_inches='tight')
+plt.savefig("../Figures/Main_figures/Figure2.png", transparent=False, dpi=300, bbox_inches='tight')
 plt.savefig("../Figures/Main_figures/Figure2.pdf", transparent=False, dpi=300, bbox_inches='tight')
 plt.show()
+
 
 # ## **Figure 3 (homodimerization effect)**
 
@@ -729,7 +731,7 @@ for key, data, cmap, cbarlabel, intext, label in heatmaps_info1:
     ax.annotate(label, xy=(-0.20, 1.02), xycoords="axes fraction", fontsize=30, fontweight='bold')
 
 plt.tight_layout()
-# plt.savefig("../Figures/Main_figures/Figure3.png", transparent=False, dpi=300, bbox_inches='tight')
+plt.savefig("../Figures/Main_figures/Figure3.png", transparent=False, dpi=300, bbox_inches='tight')
 plt.savefig("../Figures/Main_figures/Figure3.pdf", transparent=False, dpi=300, bbox_inches='tight')
 plt.show()
 
@@ -853,12 +855,13 @@ gs = GridSpec(2, 3, figure=fig, height_ratios=[1,1], width_ratios=[1,1,1])
 panelnumbers = [['a', 'b', 'c'], ['d', 'e', 'f']]
 r_vals = [-0.5, 0.5]
 
-act_ticks = [np.linspace(0.5,2,6), np.linspace(0,1.5,6)]
-fit_ticks = [np.linspace(0.5,1,6), np.linspace(0,1,6)]
-h_ticks   = [np.linspace(0,2.5,6), np.linspace(0,2,6)]
+act_ticks = [np.linspace(0,2,6), np.linspace(0,2,6)]
+fit_ticks = [np.linspace(0,1,6), np.linspace(0,1,6)]
+h_ticks   = [np.linspace(0,2.5,6), np.linspace(0,2.5,6)]
 
-xticks = np.linspace(-1, 2, 6)
-xticklabels = np.round(g_vals[::40], 1)
+
+xticks = np.linspace(-1, 2, 7)
+xticklabels = np.round(g_vals[::33], 1)
 
 axs = [[fig.add_subplot(gs[i, j]) for j in range(3)] for i in range(2)]
 
@@ -886,20 +889,23 @@ for i in range(2):
             yoffsets = [-0.05, 0.01] if j == 1 else [0.05, -0.01]
             labelLines(lines[:1], yoffsets=yoffsets[0], fontsize=15, xvals=1.2)
             labelLines(lines[1:5], yoffsets=yoffsets[1], fontsize=15, xvals=(1.2, 1.8))
-            labelLines(lines[5:], yoffsets=yoffsets[1], fontsize=15, xvals=1.8)
+            labelLines(lines[5:], yoffsets=yoffsets[1]*3, fontsize=15, xvals=1.8)
         else:
             yoffsets = [0.1, -0.01] if j == 2 else [-0.1, 0.01]
             labelLines(lines[:1], yoffsets=yoffsets[0], fontsize=15, xvals=(1.2, 1.3))
-            labelLines(lines[1:], yoffsets=yoffsets[1], fontsize=15, xvals=(1.2, 2))
+            labelLines(lines[1:5], yoffsets=yoffsets[1], fontsize=15, xvals=(1.2, 2))
+            labelLines(lines[5:], yoffsets=yoffsets[1]*3, fontsize=15, xvals=(1.7, 2))
+            
 
 fig.text(0.48, 0.95, "r=-0.5", fontsize=30, fontweight='bold')
 fig.text(0.48, 0.46, "r=0.5", fontsize=30, fontweight='bold')
 
 plt.tight_layout(rect=[0, 0, 1, 0.95])
 plt.subplots_adjust(hspace=0.3, wspace=0.2)
-# plt.savefig("../Figures/Main_figures/Figure4.png", transparent=False, dpi=300, bbox_inches='tight')
+plt.savefig("../Figures/Main_figures/Figure4.png", transparent=False, dpi=300, bbox_inches='tight')
 plt.savefig("../Figures/Main_figures/Figure4.pdf", transparent=False, dpi=300, bbox_inches='tight')
 plt.show()
+
 
 # #### Figure 5
 
@@ -1048,6 +1054,7 @@ list_hill[2] = df_hill
     
 len(list_hill)
 
+
 # Prepare the dataframe to compare the values of h_d and g for each fitness function (panel C)
 
 ## Gather all the h and g values
@@ -1060,6 +1067,7 @@ df_all_vals['g_fit2'] = list_hill[1]['g_fit2']
 df_all_vals['g_fit3'] = list_hill[2]['g_fit3']
 
 df_all_vals
+
 
 # #### Draw figure 5
 
@@ -1159,6 +1167,7 @@ for i in range(len(list_hill)):
 
 
 fig.tight_layout()
+fig.savefig('../Figures/Main_figures/Figure5.png', dpi = 300)
 fig.savefig('../Figures/Main_figures/Figure5.pdf', dpi = 300)
 
 # ## **Figure S1 (plotting heatmaps as a function of $(\Delta G_{bind,HET−HM},g)$, keeping $r$ fixed)**
@@ -1355,9 +1364,10 @@ for i in range(3):
             ax.text(-50, 100, f"r = {r_vals[i]}", color='black', va='center', rotation=90, fontsize=30, fontweight='bold')
 
 plt.tight_layout()
-# plt.savefig("../Figures/Supp_figures/FigureS1.png", transparent=False, dpi=300, bbox_inches='tight')
+plt.savefig("../Figures/Supp_figures/FigureS1.png", transparent=False, dpi=300, bbox_inches='tight')
 plt.savefig("../Figures/Supp_figures/FigureS1.pdf", transparent=False, dpi=300, bbox_inches='tight')
 plt.show()
+
 
 # ## **Figure S2 (plotting heatmaps as a function of $(\Delta G_{bind,HET−HM},r)$, keeping $g$ fixed)**
 
@@ -1513,7 +1523,7 @@ for i in range(5):
 
 plt.tight_layout(rect=[0, 0, 1, 0.95])
 plt.subplots_adjust(hspace=0.3, wspace=0.4)
-# plt.savefig("../Figures/Supp_figures/FigureS2.png", transparent=False, dpi=300, bbox_inches='tight')
+plt.savefig("../Figures/Supp_figures/FigureS2.png", transparent=False, dpi=300, bbox_inches='tight')
 plt.savefig("../Figures/Supp_figures/FigureS2.pdf", transparent=False, dpi=300, bbox_inches='tight')
 plt.show()
 
