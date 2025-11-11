@@ -1,3 +1,4 @@
+
 # ### **Import/install necessary libraries**
 # 
 # - pip install matplotlib-label-lines
@@ -24,6 +25,11 @@ from scipy.optimize import curve_fit
 import warnings
 warnings.simplefilter("ignore", RuntimeWarning)
 plt.style.use(["science", "notebook", "grid"])
+
+
+# ## **Define functions used in the model**
+
+# ### **Fitness functions**
 
 def fitness_func_scaled(filename, sheet, n, k):
     """
@@ -59,6 +65,7 @@ def fitness_func_scaled(filename, sheet, n, k):
 _, _, _, _, n1, k1 = fitness_func_scaled("../Data/Data_Despres2022.xls", "Cytosine", n=6.10, k=71.0)
 _, _, _, _, n2, k2 = fitness_func_scaled("../Data/Data_Despres2022.xls", "5FC", n=-0.80, k=9.14)
 
+
 def Hill_fitness(activity, n, k):
 
     """Calculates fitness based on a Hill function"""
@@ -71,14 +78,14 @@ def Hill_fitness(activity, n, k):
 
     return (1 + k**n) / (1 + (k / activity)**n)
 
-# fitness increases with increasing activity, then plateaus
+# fitness increases with increasing activity, then plateus
 fitness_1 = partial(Hill_fitness, n=n1, k=k1)
 
-# fitness decreases with increasing activity, then plateaus
+# fitness decreases with increasing activity, then plateus
 fitness_2 = partial(Hill_fitness, n=n2, k=k2)
 
 
-# ### **Helper functions**
+# ### **Helper functionss**
 
 def init_results(geno, r_vals=None, g_vals=None, cAB_vals=None, sweep_vals=None):
     
@@ -273,7 +280,7 @@ def Heterozygous(r_vals, g_vals, s1, s2):
                         results[system][metric][i, j] = np.nan
                     
     return results
-    
+
 def Heterospecificity(fixed_param, cAB_vals, fixed_vals, sweep_vals, s1, s2):
     
     """
@@ -335,8 +342,8 @@ Mut_homo_results = Mutant_homozygous(r_vals=np.linspace(-1,1,201))
 s1 = Mut_homo_results["mono"]["s1"]
 s2 = Mut_homo_results["mono"]["s2"]
 
-# calling the helper function for Heterozygous dimer system for r values of (-1,1) and g values of [0.0, 0.5, 1.0]
-Het_results = Heterozygous(r_vals=np.linspace(-1,1,201), g_vals=[0.0, 0.5, 1.0], s1=s1, s2=s2)
+# calling the helper function for Heterozygous dimer system for r values of (-1,1) and g values of [-1.0, 0.0, 0.5, 1.0, 2.0]
+Het_results = Heterozygous(r_vals=np.linspace(-1,1,201), g_vals=[-1.0, 0.0, 0.5, 1.0, 2.0], s1=s1, s2=s2)
 
 # setting heterodimer equilibrium concentrations for heterospecificity 
 cAB_fraction = np.array([0.00, 0.25, 0.50, 0.75, 1.00])
@@ -361,6 +368,10 @@ act_r_hetero = Het_results["rel"]["act"]
 activity_cr = [Het_spec_r[i]["act"] for i in range(len(Het_spec_r))]
 activity_cg = [Het_spec_g[i]["act"] for i in range(len(Het_spec_g))]
 
+fit1_WT = WT_results["mono"]["fit1"]
+fit2_WT = WT_results["mono"]["fit2"]
+fit1_homo_mut = Mut_homo_results["mono"]["fit1"]
+fit2_homo_mut = Mut_homo_results["mono"]["fit2"]
 fit1_d_hetero = Het_results["di"]["fit1"]
 fit2_d_hetero = Het_results["di"]["fit2"]
 h1_d = Het_results["di"]["h1"]
@@ -370,7 +381,7 @@ h2_d = Het_results["di"]["h2"]
 
 # ### **Figure 2**
 
-fig, axs = plt.subplots(1,2,figsize=(16,7))
+fig, ax = plt.subplots(figsize=(8,7))
 
 # r and g values
 r_vals = np.linspace(-1,1,201)
@@ -379,48 +390,38 @@ g_vals = np.array([0.0,0.5,1.0])
 # duplicating WT activity values for plotting
 act_m_WT_vals = act_m_WT*np.ones_like(r_vals)
 
-# plot data
-fig2_data = [
-    (act_d_hetero, [0,2], ["blue", _, "brown"], 
-     [(act_m_WT_vals, "black", "WT"), (act_m_hetero[0], "darkgreen", "Het mono"), (act_m_homo_mut, "black", "Mut homo")],
-     np.linspace(0,2,5), r"Total activity ($\mathrm{\phi}$)", "(a)"),
-    (act_r_hetero, [0,1,2], ["blue", "darkgreen", "brown"], _, 
-     np.linspace(-0.5,0.5,5), r"$\mathrm{\phi_{dimer} - \phi_{monomer}}$", "(b)")
-]
-
 # xticks and label
 xticks_fig2 = np.linspace(-1,1,5)
 xlabel_fig2 = "$r$"
+yticks_fig2 = np.linspace(0,2,5)
+ylabel_fig2 = r"Total activity ($\mathrm{\phi}$)"
 
-for i, (data, index, color, data1, yticks, ylabel, panel) in enumerate(fig2_data):
-    ax = axs[i]
-    if i == 0:
-        for (dat, color1, label1) in data1:
-            ax.plot(r_vals, dat, color=color1, label=label1, ls="--") # plotting results for WT, Het mono and Mut homo systems
-        
-        # inline labels for monomer systems
-        lines = ax.get_lines()
-        labelLines(lines, xvals=[0.6,0.7,0.5], yoffsets=[0.05,0.05,-0.1], fontsize=18)
-        
-    for j in index:
-        ax.plot(r_vals, data[j], color=color[j], label=f"$g$={g_vals[j]}") # plotting results for heterozygous dimer and dimerization effect
-            
-    ax.fill_between(r_vals, data[0], data[-1], alpha=0.8, color="bisque")  # shaded region for activity landscape for het dimer system
-    
-    # x and y ticks and labels
-    ax.set_xticks(xticks_fig2, labels=np.round(xticks_fig2, 1), fontsize=18, fontweight="bold")
-    ax.set_yticks(yticks, labels=np.round(yticks, 2), fontsize=18, fontweight="bold")
-    ax.set_xlabel(xlabel_fig2, fontsize=22)
-    ax.set_ylabel(ylabel, fontsize=22)
+fig1_data = [(act_m_WT_vals, "black", "WT"), (act_m_hetero[0], "darkgreen", "Heterozygous"), 
+             (act_m_hetero[0], "darkgreen", "monomer"), (act_m_homo_mut, "black", "Mutant homozygote")]
 
-    # panel annotation
-    ax.annotate(panel, xy=(-0.19, 0.98), xycoords="axes fraction", fontsize=24, fontweight="bold")
+for (dat, color, label) in fig1_data:
+    ax.plot(r_vals, dat, color=color, label=label, ls="--") # plotting results for WT, Het mono and Mut homo systems
+        
+colors=["blue", _, "brown"]
+for j in [0,2]:
+    ax.plot(r_vals, act_d_hetero[j+1], color=colors[j], label=f"$g$={g_vals[j]}") # plotting results for heterozygous dimer and dimerization effect
+
+# inline labels for monomer systems
+lines = ax.get_lines()
+labelLines(lines[0:4], xvals=[0.6,0.75,0.75,0.5], yoffsets=[0.05,0.06,-0.06,-0.1], fontsize=18)
+
+ax.fill_between(r_vals, act_d_hetero[1], act_d_hetero[-2], alpha=0.8, color="bisque")  # shaded region for activity landscape for het dimer system
     
-plt.legend(bbox_to_anchor=[0,0,1.35,1], fontsize=18)
-plt.tight_layout(rect=[0,0,1,0.95])
-plt.subplots_adjust(wspace=0.25)
-plt.savefig("Figure2.pdf", dpi=800)
+# x and y ticks and labels
+ax.set_xticks(xticks_fig2, labels=np.round(xticks_fig2, 1), fontsize=18, fontweight="bold")
+ax.set_yticks(yticks_fig2, labels=np.round(yticks_fig2, 2), fontsize=18, fontweight="bold")
+ax.set_xlabel(xlabel_fig2, fontsize=22)
+ax.set_ylabel(ylabel_fig2, fontsize=22)
+    
+plt.legend(handles=[lines[4], lines[1], lines[5]], labels=["$g=0.0$", "$g=0.5$", "$g=1.0$"], bbox_to_anchor=[0,0,1.35,1], fontsize=18)
+plt.savefig("../Figures/Main_figures/Figure2.pdf", dpi=800)
 plt.show()
+
 
 # ### **Figure 3**
 
@@ -477,8 +478,9 @@ for i, (xvals, data, vlinex, xlabel, xticks, title, fixed_param) in enumerate(fi
 plt.legend(bbox_to_anchor=(1.55, 1.35), fontsize=20)
 plt.tight_layout(rect=[0, 0, 1, 0.95])
 plt.subplots_adjust(hspace=0.25, wspace=0.25)
-plt.savefig("Figure3.pdf", dpi=800)
+plt.savefig("../Figures/Main_figures/Figure3.pdf", dpi=800)
 plt.show()
+
 
 # ### **Figure 4**
 
@@ -534,26 +536,39 @@ for i, data, yticks, nk, funcname, title, panel in fig4ab_data:
     
 """panels (c), (d), (e), (f) : fitness landscapes, phenotypic dominance landscapes"""
 
-colors = ["blue", "darkgreen", "brown"]
+colors = ["magenta", "blue", "darkgreen", "brown", "orange"]
+g_vals_fig4 = np.array([-1.0,0.0,0.5,1.0,2.0])
+
+fit1_WT_vals = fit1_WT*np.ones_like(r_vals)
+fit2_WT_vals = fit2_WT*np.ones_like(r_vals)
 
 # x and y ticks
 xticks_fig4cdef = np.linspace(-1,1,5)
-yticks_fig4cd = np.linspace(0,3,6)
-yticks_fig4ef = np.linspace(0,1,5)
+yticks_fig4cd = np.linspace(0,3,7)
+yticks_fig4ef = np.linspace(-1,2,7)
 
-fig4cdef_data = [("10", fit1_d_hetero, yticks_fig4cd, r"Fitness ($\mathrm{\omega}$)", "(c)"), 
-                 ("11", fit2_d_hetero, yticks_fig4cd, r"Fitness ($\mathrm{\omega}$)", "(d)"), 
-                 ("20", h1_d, yticks_fig4ef, r"$h_d$", "(e)"), 
-                 ("21", h2_d, yticks_fig4ef, r"$h_d$", "(f)")]
+fig4cdef_data = [("10", fit1_d_hetero, (fit1_WT_vals, fit1_homo_mut), yticks_fig4cd, r"Fitness ($\mathrm{\omega}$)", "(c)"), 
+                 ("11", fit2_d_hetero, (fit1_WT_vals, fit1_homo_mut), yticks_fig4cd, r"Fitness ($\mathrm{\omega}$)", "(d)"), 
+                 ("20", h1_d, _, yticks_fig4ef, r"$h_d$", "(e)"), 
+                 ("21", h2_d, _, yticks_fig4ef, r"$h_d$", "(f)")]
 
-for i, data, yticks, ylabel, panel in fig4cdef_data:
+for i, data, data1, yticks, ylabel, panel in fig4cdef_data:
     ax = axs[i]
-    for j, g in enumerate(g_vals):
+    for j, g in enumerate(g_vals_fig4):
         ax.plot(r_vals, data[j], color=colors[j], label=f"$g$ = {g}")
-    
+
+    # plot WT and mutant homozygotes fitness
+    if i[0] == "1":
+        line1, = ax.plot(r_vals, data1[0], linestyle="--", linewidth=2, color="black", alpha=1.0, label="WT")
+        line2, = ax.plot(r_vals, data1[1], linewidth=2, color="black", alpha=1.0, label="Mutant homozygous")
+        ax.legend(handles=[line1, line2], labels=["WT", "Mutant homozygous"])
+        
     # mark undefined regions in h_d plots
     if i[0] == "2":
+        ax.set_ylim(-1.0,2.0)
+        ax.axhline(0.0, linestyle="--", linewidth=2, color="black", alpha=0.7) # h_d=0.0
         ax.axhline(0.5, linestyle="--", linewidth=2, color="black", alpha=0.7) # h_d=0.5
+        ax.axhline(1.0, linestyle="--", linewidth=2, color="black", alpha=0.7) # h_d=1.0
         nan_idx = 100
         r_nan = r_vals[nan_idx]
         for i in range(data.shape[0]):
@@ -572,15 +587,16 @@ for i, data, yticks, ylabel, panel in fig4cdef_data:
     ax.annotate(panel, xy=(-0.17, 1.02), xycoords="axes fraction", fontsize=25, fontweight="bold")
     
 # row headers
-plt.text(-4.3, 2.6, "Fitness function", fontsize=30, fontweight="bold", rotation=90)
-plt.text(-4.3, 1.3, "Fitness landscape", fontsize=30, fontweight="bold", rotation=90)
-plt.text(-4.4, -0.1, "Phenotypic dominance", fontsize=30, fontweight="bold", rotation=90) 
-plt.text(-4.25, 0.3, "landscape", fontsize=30, fontweight="bold", rotation=90)
+plt.text(-4.3, 6.7, "Fitness function", fontsize=30, fontweight="bold", rotation=90)
+plt.text(-4.3, 2.9, "Fitness landscape", fontsize=30, fontweight="bold", rotation=90)
+plt.text(-4.4, -1.0, "Phenotypic dominance", fontsize=30, fontweight="bold", rotation=90) 
+plt.text(-4.25, -0.2, "landscape", fontsize=30, fontweight="bold", rotation=90)
 
 plt.legend(bbox_to_anchor=[1.4,1.5], fontsize=22)
 plt.subplots_adjust(hspace=0.2)
-plt.savefig("Figure4.pdf", dpi=800)
+plt.savefig("../Figures/Main_figures/Figure4.pdf", dpi=800)
 plt.show()
+
 
 # ## **Results (supplementary)**
 
@@ -613,6 +629,7 @@ g_vals_SV1 = np.concatenate((g_vals_SV, g_vals_SV[::-1], g_vals_SV, g_vals_SV[::
 # calling the helper function for Heterozygous dimer system for r values of (-1,1) and g values = g_vals_SV1
 Het_results_SV1 = Heterozygous(r_vals=np.linspace(-1,1,201), g_vals=g_vals_SV1, s1=s1, s2=s2)
 
+
 # extracting and renaming the necessary results for plotting
 act_m_hetero_S1 = Het_results_S13["mono"]["act"]
 act_d_hetero_S1 = Het_results_S13["di"]["act"]
@@ -630,11 +647,13 @@ act_d_hetero_SV1 = Het_results_SV1["di"]["act"]
 act_d_hetero_SV1 = act_d_hetero_SV1.astype(object)
 act_d_hetero_SV1[np.isnan(act_d_hetero_SV1.astype(float))] = None
 
+
 # ## **Plotting figures (supplementary)**
 
 # generating and storing colormaps in a list
 starts = [0.0, 0.5, 1.0, 2.0]
 cmaps = [sns.cubehelix_palette(start=s, rot=0, dark=0.0, light=0.8, reverse=True, as_cmap=True) for s in starts]
+
 
 # ### **Figure S1**
 
@@ -683,8 +702,9 @@ for i, (dat, (vmin, vmax), cmap, cbarlabel, title, panelno) in enumerate(figS1_d
     ax.annotate(panelno, xy=(-0.21, 1.02), xycoords="axes fraction", fontsize=26, fontweight="bold")
     
 plt.subplots_adjust(wspace=0.3)
-plt.savefig("FigureS1.pdf", dpi=800)
+plt.savefig("../Figures/Supp_figures/FigureS1.pdf", dpi=800)
 plt.show()
+
 
 # ### **Figure S2**
 
@@ -740,8 +760,9 @@ for (i, data, yticks, yticklabels, ylabel, title, panelno) in figS2_data:
     ax.annotate(panelno, xy=(-0.23, 1.02), xycoords="axes fraction", fontsize=25, fontweight="bold")
     
 plt.subplots_adjust(wspace=0.3, hspace=0.3)
-plt.savefig("FigureS2.pdf", dpi=800)
+plt.savefig("../Figures/Supp_figures/FigureS2.pdf", dpi=600)
 plt.show()
+
 
 # ### **Figure S3**
 
@@ -791,8 +812,9 @@ for (i, dat, cmap, (vmin, vmax), cbarlabel, title, panelno) in figS3_data:
     ax.annotate(panelno, xy=(-0.2, 1.02), xycoords="axes fraction", fontsize=25, fontweight="bold")
     
 plt.tight_layout()
-plt.savefig("FigureS3.pdf", dpi=800)
+plt.savefig("../Figures/Supp_figures/FigureS3.pdf", dpi=300)
 plt.show()
+
 
 # ### Supplementary Video SV1
 
@@ -804,18 +826,19 @@ yticks_SV1 = np.linspace(0,2.4,7)
 
 # plotting the three fixed fitness plots
 ax.plot(r_vals, act_m_WT_vals, label="WT", c="black")
-ax.plot(r_vals, act_m_hetero[0], label="Het mono", c="darkgreen")
-ax.plot(r_vals, act_m_homo_mut, label="Mut homo", c="black")
+ax.plot(r_vals, act_m_hetero[0], label="Heterzygous", c="darkgreen")
+ax.plot(r_vals, act_m_hetero[0], label="monomer", c="darkgreen")
+ax.plot(r_vals, act_m_homo_mut, label="Mutant homozygous", c="black")
 
 # in line labels for monomer systems
 lines = ax.get_lines()
-labelLines(lines, xvals=[0.6,0.7,0.5], yoffsets=[0.05,0.05,-0.1], fontsize=18)
+labelLines(lines, xvals=[0.6,0.7,0.65,0.5], yoffsets=[0.05,0.05,-0.05,-0.1], fontsize=18)
 
 # plotting the animation for fitness of heterozygous dimer genotype
 N = len(g_vals_SV1)
 def update(frame, ax, line, xdata, ydata, tdata, anim=False):
     if line is None:
-        line, = ax.plot(xdata, ydata[frame], label="Het dimer", c="purple")
+        line, = ax.plot(xdata, ydata[frame], label="Heterozygous dimer", c="purple")
     line.set_data(xdata, ydata[frame])
     ax.set_title(f"$g$ = {round(tdata[frame],1)}", fontsize=25, pad=20)
     return line,
@@ -836,7 +859,7 @@ ani = animation.FuncAnimation(fig, update_anim, N, interval=15, blit=False)
 
 # save animation
 writer = FFMpegWriter(fps=30, codec="libx264")
-ani.save("VideoS1.mp4", writer=writer, dpi=80)
+ani.save("../Figures/Supp_figures/VideoS1.mp4", writer=writer, dpi=80)
 
 plt.plot()
 
